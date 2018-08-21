@@ -1,0 +1,13 @@
+{
+  "name": "logique",
+  "dependencies": {
+    "bootstrap": "^4.1.2",
+    "jquery": "^3.3.1",
+    "jquery.steps": "^1.1.0",
+    "jquery-validation": "^1.17.0",
+    "eonasdan-bootstrap-datetimepicker": "^4.17.47",
+    "select2": "^4.0.5",
+    "datatables.net": "^1.10.19",
+    "datatables.net-dt": "^3.2.2"
+  }
+}
