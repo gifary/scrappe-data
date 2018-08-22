@@ -1,5 +1,5 @@
 Instalation
-1. Setup database in file .env
+1. Copy .env.example to .env and Setup database in file .env
 
 - DB_CONNECTION=mysql
 - DB_HOST=127.0.0.1
