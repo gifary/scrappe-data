@@ -16,10 +16,19 @@
 
                 <!-- Main content -->
                 <section class="content">
-                    <div class="row">
+                    <div class="row" style="margin-bottom: 20px">
                         <div class="col">
                             <div class="float-right">
-                                <h3>Total Review {{$total_verified+$total_unverified}}</h3>
+                                <div class="title-total">Total Review </div>
+                                <div class="total-review">
+                                    {{$total_verified+$total_unverified}}
+                                </div>
+                                <div class="total-verified">
+                                    {{$total_verified}} +
+                                </div>
+                                <div class="total-unverified">
+                                    {{$total_unverified}}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -311,6 +320,29 @@
             color: #ff002a;
             font-size: 18px;
             display: inline;
+        }
+
+        .title-total{
+            margin-right: 15px;
+            display: inline;
+            font-size: 24px;
+        }
+
+        .total-review{
+            margin-left: 10px;
+            display: inline;
+            font-size: 24px;
+        }
+        .total-verified{
+            margin-left: 15px;
+            display: inline;
+            font-size: 24px;
+            color: #58ff25;
+        }
+        .total-unverified{
+            display: inline;
+            font-size: 24px;
+            color: #ff002a;
         }
     </style>
 @endsection
