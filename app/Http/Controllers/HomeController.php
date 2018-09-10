@@ -85,12 +85,16 @@ class HomeController extends Controller
             $total_verified_one_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>1])->count();
             $total_unverified_one_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>1])->count();
 
+            $total_verified = $total_verified_five_star+$total_verified_four_star+$total_verified_three_star+$total_verified_two_star+$total_verified_one_star;
+            $total_unverified = $total_unverified_five_star+$total_unverified_four_star+$total_unverified_three_star+$total_unverified_two_star+$total_unverified_one_star;
+
             return view('detail',compact('asin','id','child_asin',
                 'total_unverified_five_star','total_verified_five_star',
                 'total_unverified_four_star','total_verified_four_star',
                 'total_unverified_three_star','total_verified_three_star',
                 'total_unverified_two_star','total_verified_two_star',
-                'total_unverified_one_star','total_verified_one_star'));
+                'total_unverified_one_star','total_verified_one_star',
+                'total_verified','total_unverified'));
         }else{
             return redirect()->route('home')->with('error', 'Code not valid');
         }

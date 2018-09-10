@@ -16,149 +16,152 @@
 
                 <!-- Main content -->
                 <section class="content">
-                    <div class="">
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="float-right">
-                                    <div class="star">
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="float-right">
+                                <h3>Total Review {{$total_verified+$total_unverified}}</h3>
                             </div>
-                            <div class="col-2">
-                                <div class="float-right">
-                                    <div class="total">
-                                        {{$total_verified_five_star+$total_unverified_five_star}}
-                                    </div>
-                                    <div class="verified">
-                                        {{$total_verified_five_star}}
-                                    </div>
-                                    +
-                                    <div class="unverified">
-                                        {{$total_unverified_five_star}}
-                                    </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="float-right">
+                                <div class="star">
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="float-right">
-                                    <div class="star">
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                    </div>
+                        <div class="col-2">
+                            <div class="float-right">
+                                <div class="total">
+                                    {{$total_verified_five_star+$total_unverified_five_star}}
                                 </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="float-right">
-                                    <div class="total">
-                                        {{$total_verified_four_star+$total_unverified_four_star}}
-                                    </div>
-                                    <div class="verified">
-                                        {{$total_verified_four_star}}
-                                    </div>
-                                    +
-                                    <div class="unverified">
-                                        {{$total_unverified_four_star}}
-                                    </div>
+                                <div class="verified">
+                                    {{$total_verified_five_star}}
+                                </div>
+                                +
+                                <div class="unverified">
+                                    {{$total_unverified_five_star}}
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="float-right">
-                                    <div class="star">
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="float-right">
-                                    <div class="total">
-                                        {{$total_verified_three_star+$total_unverified_three_star}}
-                                    </div>
-                                    <div class="verified">
-                                        {{$total_verified_three_star}}
-                                    </div>
-                                    +
-                                    <div class="unverified">
-                                        {{$total_unverified_three_star}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="float-right">
-                                    <div class="star">
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="float-right">
-                                    <div class="total">
-                                        {{$total_verified_two_star+$total_unverified_two_star}}
-                                    </div>
-                                    <div class="verified">
-                                        {{$total_verified_two_star}}
-                                    </div>
-                                    +
-                                    <div class="unverified">
-                                        {{$total_unverified_two_star}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="float-right">
-                                    <div class="star">
-                                        <i class="material-icons md-dark" style="color: yellow" >star</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                        <i class="material-icons md-dark">star_border</i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="float-right">
-                                    <div class="total">
-                                        {{$total_verified_one_star+$total_unverified_one_star}}
-                                    </div>
-                                    <div class="verified">
-                                        {{$total_verified_one_star}}
-                                    </div>
-                                    +
-                                    <div class="unverified">
-                                        {{$total_unverified_one_star}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="float-right">
+                                <div class="star">
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="float-right">
+                                <div class="total">
+                                    {{$total_verified_four_star+$total_unverified_four_star}}
+                                </div>
+                                <div class="verified">
+                                    {{$total_verified_four_star}}
+                                </div>
+                                +
+                                <div class="unverified">
+                                    {{$total_unverified_four_star}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="float-right">
+                                <div class="star">
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="float-right">
+                                <div class="total">
+                                    {{$total_verified_three_star+$total_unverified_three_star}}
+                                </div>
+                                <div class="verified">
+                                    {{$total_verified_three_star}}
+                                </div>
+                                +
+                                <div class="unverified">
+                                    {{$total_unverified_three_star}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="float-right">
+                                <div class="star">
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="float-right">
+                                <div class="total">
+                                    {{$total_verified_two_star+$total_unverified_two_star}}
+                                </div>
+                                <div class="verified">
+                                    {{$total_verified_two_star}}
+                                </div>
+                                +
+                                <div class="unverified">
+                                    {{$total_unverified_two_star}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="float-right">
+                                <div class="star">
+                                    <i class="material-icons md-dark" style="color: yellow" >star</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                    <i class="material-icons md-dark">star_border</i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="float-right">
+                                <div class="total">
+                                    {{$total_verified_one_star+$total_unverified_one_star}}
+                                </div>
+                                <div class="verified">
+                                    {{$total_verified_one_star}}
+                                </div>
+                                +
+                                <div class="unverified">
+                                    {{$total_unverified_one_star}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-12"  style="margin-top: 20px">
                             @if($asin->is_finished)
