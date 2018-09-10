@@ -38,14 +38,24 @@ class HomeController extends Controller
         $client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
 
         $crawler = $client->request('GET', 'https://www.amazon.com/product-reviews/'.$code);
-
+        Log::debug('response code . '.$client->getInternalResponse()->getStatus());
         $validCode = $crawler->filter('#g')->each(function ($node) {
             Log::debug("Code not valid ".$node->text());
             return true;
         });
 
         if(empty($validCode)){
-            $asin= Asin::create($request->only(['code']));
+            $urlProduct = $crawler->filter('h1 > .a-link-normal')->each(function ($rating){
+                return $rating->attr('href');
+            });
+            $data =$request->only(['code']);
+            if(!empty($urlProduct)){
+                $data['url'] = $urlProduct[0];
+            }else{
+                $data['url'] = "/product-reviews/".$request->code;
+            }
+
+            $asin= Asin::create($data);
             //attached job for getting data
             ProcessScrapeData::dispatch($asin)->delay(Carbon::now()->addMinutes(1))->onConnection('database');
             return redirect()->route('home')->with('message', 'Please click this <a href="view/'.$asin->id.'"> link </a> for see the result');
@@ -56,18 +66,70 @@ class HomeController extends Controller
 
     public function view($id){
         //find code
-        $asin = Asin::find($id);
+        $asin = Asin::with("comments")->find($id);
 
         if(!empty($asin)){
-            return view('detail',compact('asin','id'));
+            $child_asin = $asin->comments()->groupBy('asin_child')->get();
+            $total_verified_five_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>5])->count();
+            $total_unverified_five_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>5])->count();
+
+            $total_verified_four_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>4])->count();
+            $total_unverified_four_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>4])->count();
+
+            $total_verified_three_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>3])->count();
+            $total_unverified_three_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>3])->count();
+
+            $total_verified_two_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>2])->count();
+            $total_unverified_two_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>2])->count();
+
+            $total_verified_one_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>1])->count();
+            $total_unverified_one_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>1])->count();
+
+            return view('detail',compact('asin','id','child_asin',
+                'total_unverified_five_star','total_verified_five_star',
+                'total_unverified_four_star','total_verified_four_star',
+                'total_unverified_three_star','total_verified_three_star',
+                'total_unverified_two_star','total_verified_two_star',
+                'total_unverified_one_star','total_verified_one_star'));
         }else{
             return redirect()->route('home')->with('error', 'Code not valid');
         }
     }
 
-    public function data(Datatables $datatables,$id){
+    public function data(Datatables $datatables,$id,Request$request){
         ini_set('memory_limit', '-1');
-        $asinComment = AsinComment::where('asin_id',$id)->get();
+        $asinComment = AsinComment::where('asin_id',$id."");
+
+        if($request->has("asin_child")){
+            if(!empty($request->get("asin_child"))){
+                $asinComment = $asinComment->where("asin_child",$request->get("asin_child"));
+            }
+        }
+        $review_score=array();
+        if($request->get("star_one")=='true'){
+            array_push($review_score,1);
+        }
+        if($request->get("star_two")=='true'){
+            array_push($review_score,2);
+        }
+        if($request->get("star_three")=='true'){
+            array_push($review_score,3);
+        }
+        if($request->get("star_four")=='true'){
+            array_push($review_score,4);
+        }
+        if($request->get("star_five")=='true'){
+            array_push($review_score,5);
+        }
+
+        if(sizeof($review_score)>0){
+            $asinComment = $asinComment->whereIn('review_score',$review_score);
+        }
+
+        if($request->get("is_verified")=='true'){
+            $asinComment = $asinComment->where('is_verified',true);
+        }
+        $asinComment = $asinComment->get();
         return $datatables->collection($asinComment)
             ->editColumn('title', function ($asinComment) {
                 return '<a href="https://www.amazon.com/'.$asinComment->link_review_page.'" target="_blank">' . $asinComment->title . '</a>';
@@ -107,109 +169,11 @@ class HomeController extends Controller
         $crawler = $client->request('GET', 'https://www.amazon.com/product-reviews/B0742HBFWW');
         //get max page number first
 
-        $crawler->filter('#cm_cr-pagination_bar .a-pagination .page-button a')->each(function ($node) {
-           return $node->text();
+        $ulrProduct = $crawler->filter('h1 > .a-link-normal')->each(function ($rating){
+            return $rating->attr('href');
         });
-//        dump($arrayMaxPageNumber);
-        $asin = Asin::where('code','B0742HBFWW')->first();
-        //$max = $arrayMaxPageNumber[sizeof($arrayMaxPageNumber)-1];
 
-       /* if(!empty($asin)){
-            for ($i=1;$i<=(int)str_replace(",","",$max);$i++){
-                try{
-                    $url = Goutte::request('GET', 'https://www.amazon.com/product-reviews/'.$this->asin->code.'?pageNumber='.$i);
+        dd($ulrProduct);
 
-                    $url->filter('#cm_cr-review_list .review')->each(function ($node) use($asin) {
-                        $userIdComment =$node->attr('id');
-                        $node->filter('#customer_review-'.$userIdComment)->each(function ($com) use($userIdComment,$asin){
-
-                            $rating =$com->filter('.review-rating')->each(function ($rating){
-                                return $rating->text();
-                            });
-
-
-                            $dataTitle = $com->filter('.review-title')->each(function ($rating){
-                                return [$rating->text(),$rating->attr('href')];
-                            });
-
-
-                            $dataAuthor = $com->filter('.author')->each(function ($rating){
-                                return [$rating->text(),$rating->attr('href')];
-                            });
-
-
-                            $reviewDate = $com->filter('.review-date')->each(function ($rating){
-                                return $rating->text();
-                            });
-
-
-                            $childAsin = $com->filter('.review-format-strip a')->each(function ($rating){
-                                return [$rating->attr('href'),$rating->text()];
-                            });
-
-                            $reviewData = $com->filter('.review-text')->each(function ($text){
-                                $isVideo = $text->filter('.video-url')->each(function ($video){
-                                    return $video->attr('value');
-                                });
-                                return [$text->text(),$isVideo];
-                            });
-
-                            $videoUrl = null;
-                            if(!empty($reviewData[0][1])){
-                                $videoUrl = implode($reviewData[1],"");
-                            }
-                            $isVerified = false;
-                            if(!empty($childAsin[1][1])){
-                                if(str_contains ($childAsin[1][1],"Verified")){
-                                    $isVerified = true;
-                                }
-                            }
-
-                            $asinChild = null;
-                            if(!empty($childAsin[0][0])){
-                                $codeChild = explode("/",$childAsin[0][0]);
-                                $asinChild  = $codeChild[3];
-                            }
-
-                            $asinCommentData = new AsinComment([
-                                'title'             => $dataTitle[0][0],
-                                'link_review_page'  => $dataTitle[0][1],
-                                'body'              => $reviewData[0][0],
-                                'video_url'         => $videoUrl,
-                                'review_score'      => (int)substr($rating[0],0,1),
-                                'date_of_review'    => trim(str_replace("on ","",$reviewDate[0])),
-                                'author'            => $dataAuthor[0][0],
-                                'link_author'       => $dataAuthor[0][1],
-                                'is_verified'       => $isVerified,
-                                'asin_child'        => $asinChild
-                            ]);
-
-                            if($asin instanceof Asin){
-                                $asinComment = $asin->comments()->save($asinCommentData);
-                                if($asinComment  instanceof AsinComment){
-                                    $imageData = $com->filter('#'.$userIdComment."_imageSection_main > .review-image-tile-section img")->each(function ($rating){
-                                        return $rating->attr('src');
-                                    });
-
-                                    foreach ($imageData as $image){
-                                        $asinImage = new AsinCommentImage(['url'=>$image]);
-                                        $asinComment->images()->save($asinImage);
-                                    }
-                                }
-                            }
-
-
-                        });
-                    });
-                }catch (\Exception $e){
-                    Log::error('job scraped error ',['data'=>$e->getMessage()]);
-                }
-            }
-
-            $asin->number_of_comment = $asin->comments()->count();
-            $asin->is_finished = true;
-            $asin->save();
-
-        }*/
     }
 }

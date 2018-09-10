@@ -74,6 +74,7 @@ class ProcessScrapeData implements ShouldQueue
                     Log::debug('page . '.$i);
                     $base_url = 'https://www.amazon.com/product-reviews/'.$this->asin->code.'/ref=cm_cr_arp_d_paging_btm_'.$i.'?pageNumber='.$i;
                     Log::debug('get data from. '.$base_url);
+                    Log::debug('response code . '.$client->getInternalResponse()->getStatus());
                     $url = $client->request('GET', $base_url);
                     //check page still exist or not
                     $stillExist = $url->filter('#cm_cr-review_list .no-reviews-section')->each(function ($node) {

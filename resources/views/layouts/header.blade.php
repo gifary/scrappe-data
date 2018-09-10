@@ -8,7 +8,7 @@
     <title>Scrape comment Amazon</title>
 
     <link rel="stylesheet" href="{{asset('css/all.css')}}">
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script type="text/javascript" src="{{asset('js/vendor.js')}}"></script>
 </head>
 <body>

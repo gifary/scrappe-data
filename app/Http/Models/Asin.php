@@ -16,8 +16,10 @@ class Asin extends Model
 {
     use UuidTrait;
 
-    protected $fillable =['code','is_finished','number_of_comment'];
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
     public $incrementing = false;
+    protected $fillable =['id','code','is_finished','number_of_comment','url'];
 
     public function comments(){
         return $this->hasMany(AsinComment::class);
