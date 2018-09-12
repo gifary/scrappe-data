@@ -11,13 +11,21 @@
                         @else
                             Comment Data for ASIN Code <a href="https://www.amazon.com/product-reviews/{{ $asin->code }}" target="_blank">{{ $asin->code }}</a>
                         @endif
+                        @if($tag!='')
+                            TAG : {{$tag}}
+                        @endif
                     </h5>
                 </section>
 
                 <!-- Main content -->
                 <section class="content">
-                    <div class="row" style="margin-bottom: 20px">
-                        <div class="col">
+                    <div class="row" style="margin-top: 20px">
+                        <div class="col-6">
+                            <div>
+                                <h3><a href="{{route('viewAnalysis',$asin->id)}}">See analysis page</a></h3>
+                            </div>
+                        </div>
+                        <div class="col-6">
                             <div class="float-right">
                                 <div class="title-total">Total Review </div>
                                 <div class="total-review">
@@ -239,6 +247,7 @@
                                 <table id="asin-comment" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
+                                        <th>Tag</th>
                                         <th>Title</th>
                                         <th>Body</th>
                                         <th>Score</th>
@@ -266,11 +275,14 @@
 @section('additional-script')
     <script>
         $(function () {
+            function format ( d ) {
+                return d.input_tag;
+            }
             var oTable =  $('#asin-comment').DataTable({
                 serverSide: true,
                 processing: true,
                 ajax: {
-                    url: "{{ route('viewAsinCodeData',$id) }}",
+                    url: "{{ route('viewAsinCodeData',[$id,$tag]) }}",
                     data: function (d) {
                         d.asin_child = $('#asin_child').find(":selected").val();
                         d.is_verified = $("#is_verified").is(":checked");
@@ -282,6 +294,12 @@
                     }
                 },
                 columns: [
+                    {
+                        "class":          "details-control",
+                        "orderable":      false,
+                        "data":           null,
+                        "defaultContent": " <i class=\"material-icons md-dark\" style='cursor:pointer'>add</i>"
+                    },
                     {data: 'title'},
                     {data: 'body'},
                     {data: 'review_score'},
@@ -297,6 +315,38 @@
                 oTable.draw();
                 e.preventDefault();
             });
+
+            var detailRows = [];
+
+            $('#asin-comment tbody').on( 'click', 'tr td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = oTable.row( tr );
+                var idx = $.inArray( tr.attr('id'), detailRows );
+
+                if ( row.child.isShown() ) {
+                    tr.removeClass( 'details' );
+                    row.child.hide();
+
+                    // Remove from the 'open' array
+                    detailRows.splice( idx, 1 );
+                }
+                else {
+                    tr.addClass( 'details' );
+                    row.child( format( row.data() ) ).show();
+
+                    // Add to the 'open' array
+                    if ( idx === -1 ) {
+                        detailRows.push( tr.attr('id') );
+                    }
+                }
+            } );
+
+            // On each draw, loop over the `detailRows` array and show any child rows
+            oTable.on( 'draw', function () {
+                $.each( detailRows, function ( i, id ) {
+                    $('#'+id+' td.details-control').trigger( 'click' );
+                } );
+            } );
         });
     </script>
     <style>

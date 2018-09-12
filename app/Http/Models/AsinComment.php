@@ -15,8 +15,16 @@ class AsinComment extends Model
 {
     protected $guarded =['_token','id'];
 
+    /*protected $casts = [
+        'tag' => 'array'
+    ];*/
+
     public function images(){
         return $this->hasMany(AsinCommentImage::class);
+    }
+
+    public function tags(){
+        return $this->hasMany(AsinCommentTag::class);
     }
 
     public function asin(){

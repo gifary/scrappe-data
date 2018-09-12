@@ -11,14 +11,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Models\Asin;
 use App\Http\Models\AsinComment;
-use App\Http\Models\AsinCommentImage;
+use App\Http\Models\Tag;
 use App\Jobs\ProcessScrapeData;
 use Carbon\Carbon;
 use Goutte\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
-use Goutte;
 
 class HomeController extends Controller
 {
@@ -64,26 +64,30 @@ class HomeController extends Controller
         }
     }
 
-    public function view($id){
+    public function view($id,$tag=''){
         //find code
         $asin = Asin::with("comments")->find($id);
 
         if(!empty($asin)){
             $child_asin = $asin->comments()->groupBy('asin_child')->get();
-            $total_verified_five_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>5])->count();
-            $total_unverified_five_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>5])->count();
+            $whereTag = function ($q) use($tag){
+                $q->where('name',$tag);
+            };
 
-            $total_verified_four_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>4])->count();
-            $total_unverified_four_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>4])->count();
+            $total_verified_five_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>5])->whereHas('tags',$whereTag)->count();
+            $total_unverified_five_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>5])->whereHas('tags',$whereTag)->count();
 
-            $total_verified_three_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>3])->count();
-            $total_unverified_three_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>3])->count();
+            $total_verified_four_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>4])->whereHas('tags',$whereTag)->count();
+            $total_unverified_four_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>4])->whereHas('tags',$whereTag)->count();
 
-            $total_verified_two_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>2])->count();
-            $total_unverified_two_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>2])->count();
+            $total_verified_three_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>3])->whereHas('tags',$whereTag)->count();
+            $total_unverified_three_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>3])->whereHas('tags',$whereTag)->count();
 
-            $total_verified_one_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>1])->count();
-            $total_unverified_one_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>1])->count();
+            $total_verified_two_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>2])->whereHas('tags',$whereTag)->count();
+            $total_unverified_two_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>2])->whereHas('tags',$whereTag)->count();
+
+            $total_verified_one_star = $asin->comments()->where(["is_verified"=>true,"review_score"=>1])->whereHas('tags',$whereTag)->count();
+            $total_unverified_one_star = $asin->comments()->where(["is_verified"=>false,"review_score"=>1])->whereHas('tags',$whereTag)->count();
 
             $total_verified = $total_verified_five_star+$total_verified_four_star+$total_verified_three_star+$total_verified_two_star+$total_verified_one_star;
             $total_unverified = $total_unverified_five_star+$total_unverified_four_star+$total_unverified_three_star+$total_unverified_two_star+$total_unverified_one_star;
@@ -94,15 +98,22 @@ class HomeController extends Controller
                 'total_unverified_three_star','total_verified_three_star',
                 'total_unverified_two_star','total_verified_two_star',
                 'total_unverified_one_star','total_verified_one_star',
-                'total_verified','total_unverified'));
+                'total_verified','total_unverified','tag'));
         }else{
             return redirect()->route('home')->with('error', 'Code not valid');
         }
     }
 
-    public function data(Datatables $datatables,$id,Request$request){
+    public function data(Datatables $datatables,Request$request,$id,$tag=''){
         ini_set('memory_limit', '-1');
-        $asinComment = AsinComment::where('asin_id',$id."");
+
+        $asinComment = AsinComment::where('asin_id',$id);
+
+        if($tag!=''){
+            $asinComment = $asinComment->whereHas('tags',function ($q) use($tag){
+                $q->where('name',$tag);
+            });
+        }
 
         if($request->has("asin_child")){
             if(!empty($request->get("asin_child"))){
@@ -162,7 +173,18 @@ class HomeController extends Controller
                     return "No";
                 }
             })
-            ->rawColumns(['title','author'])
+            ->addColumn('input_tag',function ($asinComment){
+                $tag= '';
+                $id= $asinComment->id;
+                $asin_id= $asinComment->asin_id;
+                if($asinComment->tags()!=null){
+                    $tag = $asinComment->tags->map(function($tag) {
+                        return $tag->name;
+                    })->implode(',');
+                }
+                return view('tags',compact('tag','id','asin_id'));
+            })
+            ->rawColumns(['title','author','input_tag'])
             ->make(true);
     }
 
@@ -178,6 +200,55 @@ class HomeController extends Controller
         });
 
         dd($ulrProduct);
+    }
 
+    public function getTags(Request $request)
+    {
+        $q = $request->q;
+        $tag = Tag::where('name','LIKE','%'.$q.'%')->take(10)->get();
+        return response()->json($tag);
+    }
+
+    public function addTag(Request $request,$id)
+    {
+        //delete oll tag with same name
+        if(strlen($request->name)>0){
+            $name = $request->name;
+            Tag::updateOrCreate([
+               'name'=>$name
+            ]);
+
+            $comment = AsinComment::find($id);
+
+            $comment->tags()->create(['name'=>$name]);
+
+            return response()->json($comment->tags());
+        }
+
+        return $request->name;
+    }
+
+    public function removeTag(Request $request,$id)
+    {
+        $name = $request->name;
+        $comment = AsinComment::find($id);
+        $comment->tags()->where('name',$name)->delete();
+        return response()->json($comment);
+    }
+
+    public function viewAnalysis($id)
+    {
+        $asin = Asin::with("comments")->find($id);
+
+        if(!empty($asin)){
+            $data =  DB::table("asin_comments")
+                ->select(DB::raw('count(asin_comment_tags.name) as total'),'asin_comment_tags.name as name')
+                ->join("asin_comment_tags","asin_comments.id","=","asin_comment_tags.asin_comment_id")
+                ->where("asin_comments.asin_id","=",$id)
+                ->groupBy("asin_comment_tags.name")->get();
+            return view('analysis',compact('data','id','asin'));
+        }else{
+            return redirect()->route('home')->with('error', 'Code not valid');
+        }
     }
 }

@@ -23,7 +23,9 @@ mix.scripts([
     'resources/assets/bower/jquery-validation/dist/additional-methods.js',
     'resources/assets/bower/jquery.steps/build/jquery.steps.js',
     'resources/assets/bower/select2/dist/js/select2.full.js',
-    'resources/assets/bower/datatables.net/js/jquery.dataTables.js'
+    'resources/assets/bower/datatables.net/js/jquery.dataTables.js',
+    'resources/assets/js/typeahead.js',
+    'resources/assets/js/bootstrap-tagsinput.js'
 ], 'public/js/vendor.js');
 
 mix.styles([
@@ -31,5 +33,6 @@ mix.styles([
     'resources/assets/bower/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
     'resources/assets/bower/jquery.steps/demo/css/jquery.steps.css',
     'resources/assets/bower/select2/dist/css/select2.css',
-    'resources/assets/bower/datatables.net-dt/css/jquery.dataTables.css'
+    'resources/assets/bower/datatables.net-dt/css/jquery.dataTables.css',
+    'resources/assets/css/bootstrap-tagsinput.css'
 ], 'public/css/all.css');
